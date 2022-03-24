@@ -2,6 +2,7 @@
 
 阿里云oss存储桶操作模块
 
+> dotnet add package  Jc.OSS
 
 #### 实例化
 ```c#
