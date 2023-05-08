@@ -30,6 +30,41 @@ DeleteBucket(string bucketName)
 bool PutObject(string key, string localFile)
 ```
 
+#### 同步上传stream
+```c#
+/// <summary>
+/// 同步_上传stream
+/// </summary>
+/// <param name="key"></param>
+/// <param name="localFile"></param>
+/// <returns></returns>
+/// <exception cref="Exception"></exception>
+public bool PutObject(string key, Stream localFile)
+```
+
+#### 追加stream
+```c#
+/// <summary>
+/// 追加上传stream
+/// </summary>
+/// <param name="key"></param>
+/// <param name="stream"></param>
+/// <returns></returns>
+/// <exception cref="Exception"></exception>
+public bool AppendObject(string key, Stream stream)
+```
+
+#### 追加文件
+```c#
+/// <summary>
+/// 追加上传文件
+/// </summary>
+/// <param name="key">存储桶key</param>
+/// <param name="localFile">本地文件路径</param>
+/// <returns></returns>
+public bool AppendObject(string key, string localFile)
+```
+
 #### 同步下载一个文件
 ```c#
 /// <summary>
@@ -39,6 +74,17 @@ bool PutObject(string key, string localFile)
 /// <param name="localFilePath">本地保存文件的路径（全路径）</param>
 /// <returns></returns>
 bool GetObject(string key, string localFilePath)
+```
+
+#### 同步获取文件内容
+```c#
+/// <summary>
+/// 同步_获取文件信息
+/// </summary>
+/// <param name="key"></param>
+/// <returns></returns>
+/// <exception cref="Exception"></exception>
+public OssObject GetObject(string key)
 ```
 
 #### 删除一个文件夹

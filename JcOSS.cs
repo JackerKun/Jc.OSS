@@ -49,7 +49,6 @@ namespace Jc.OSS
             _client = new OssClient(_endpoint, _accessKeyId, _accessKeySecret);
         }
 
-
         /// <summary>
         /// 创建一个新的存储空间
         /// </summary>
@@ -119,6 +118,36 @@ namespace Jc.OSS
         }
 
         /// <summary>
+        /// 同步_上传stream
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="localFile"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool PutObject(string key, Stream localFile)
+        {
+            bool res = false;
+            try
+            {
+                key = key.Replace(@"\", "/");
+                PutObjectResult result = _client.PutObject(_bucketName, key, localFile);
+                if (result.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return res;
+        }
+        
+        /// <summary>
         /// 追加上传文件
         /// </summary>
         /// <param name="key">存储桶key</param>
@@ -144,12 +173,14 @@ namespace Jc.OSS
                 // 获取追加位置，再次追加文件。
                 using (var fs = File.Open(localFile, FileMode.Open))
                 {
-                    var request = new AppendObjectRequest(_bucketName, key);
-                    //{
-                    //    ObjectMetadata = new ObjectMetadata(),
-                    //    Content = fs,
-                    //    Position = position
-                    //};
+                    var request = new AppendObjectRequest(_bucketName,key)
+                    {
+                        ObjectMetadata = new ObjectMetadata(),
+                        Content = fs,
+                        Position = position,
+                        BucketName = _bucketName,
+                        Key = key
+                    };
                     var result = _client.AppendObject(request);
                     position = result.NextAppendPosition;
                     Console.WriteLine("Append object succeeded, next append position:{0}", position);
@@ -159,6 +190,50 @@ namespace Jc.OSS
             {
                 throw ex;
             }
+            return res;
+        }
+
+        /// <summary>
+        /// 追加上传stream
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool AppendObject(string key, Stream stream)
+        {
+            bool res = false;
+            // 第一次追加的位置是0，返回值为下一次追加的位置。后续追加的位置是追加前文件的长度。
+            long position = 0;
+            try
+            {
+                var metadata = _client.GetObjectMetadata(_bucketName, key);
+                position = metadata.ContentLength;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            try
+            {
+                var request = new AppendObjectRequest(_bucketName, key)
+                {
+                    ObjectMetadata = new ObjectMetadata(),
+                    Content = stream,
+                    Position = position,
+                    BucketName = _bucketName,
+                    Key = key
+                };
+                var result = _client.AppendObject(request);
+                position = result.NextAppendPosition;
+                Console.WriteLine("Append object succeeded, next append position:{0}", position);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
             return res;
         }
 
@@ -224,6 +299,26 @@ namespace Jc.OSS
             return res;
         }
 
+        /// <summary>
+        /// 同步_获取文件信息
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public OssObject GetObject(string key)
+        {
+            try
+            {
+                key = key.Replace(@"\", "/");
+                OssObject result = _client.GetObject(_bucketName, key);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
         /// <summary>
         /// Stream保存到文件
         /// </summary>
